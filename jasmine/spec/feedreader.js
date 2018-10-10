@@ -89,7 +89,7 @@ $(function() {
        * a single .entry element within the .feed container.
        */
        it('When loadFeed, there is .entry in .feed', function() {
-         const feed = $('.feed');
+         const feed = document.querySelector('.feed');
          expect(feed.children.length > 0).toBe(true);
        });
     });
@@ -97,14 +97,22 @@ $(function() {
     /* Test suite named "New Feed Selection" */
     describe('New Feed Selection', function() {
       const feed = document.querySelector('.feed');
-      const firstFeed = [];
+      let feedAfterFirstLoad = [];
+      let feedAfterSecondLoad = [];
 
       beforeEach(function (done) {
-        loadFeed(0);
-        Array.from(feed.children).forEach(function(entry) {
-          firstFeed.push(entry.innerText);
+        loadFeed(0, function() {
+          Array.from(feed.children).forEach(function(entry) {
+            feedAfterFirstLoad.push(entry.innerText);
+          });
+          loadFeed(1, function() {
+            Array.from(feed.children).forEach(function(entry) {
+              feedAfterSecondLoad.push(entry.innerText);
+            });
+            done();
+          });
         });
-        loadFeed(1, done);
+
       });
 
       /* Test that ensures when a new feed is loaded
@@ -112,9 +120,7 @@ $(function() {
        * Remember, loadFeed() is asynchronous.
        */
        it('when a new feed is loaded, content changes', function() {
-         Array.from(feed.children).forEach(function(entry, index) {
-           expect(entry.innerText === firstFeed[index]).toBe(false);
-         });
+         expect(feedAfterFirstLoad).not.toEqual(feedAfterSecondLoad);
        });
     });
 }());
